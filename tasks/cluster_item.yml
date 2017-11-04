@@ -1,5 +1,5 @@
 - block:
-  - name: "postgresql-cluster · check cluster {{ cluster.name }}"
+  - name: "postgresql-cluster - check cluster {{ cluster.name }}"
     stat:
       path: "{{ cluster.path }}/postgresql.conf"
     register: cluster_configuration
@@ -7,7 +7,7 @@
     become_user: "{{ postgresql_cluster_postgres_user }}"
 
   - block:
-      - name: "postgresql-cluster · create directory {{ cluster.name }}"
+      - name: "postgresql-cluster - create directory {{ cluster.name }}"
         file:
           path: "{{ cluster.path }}"
           state: directory
@@ -17,30 +17,30 @@
         become: yes
         become_user: root
 
-      - name: "postgresql-cluster · create {{ cluster.name }}"
+      - name: "postgresql-cluster - create {{ cluster.name }}"
         command: "/usr/pgsql-{{ cluster.postgresql_version }}/bin/initdb --locale='{{ _cluster_locale }}' --lc-messages=en_US.UTF-8 '{{ cluster.path }}'"
         become: yes
         become_user: "{{ postgresql_cluster_postgres_user }}"
     when: not cluster_configuration.stat.exists
 
   - block:
-    - name: "postgresql-cluster · port configuration {{ cluster.name }}"
+    - name: "postgresql-cluster - port configuration {{ cluster.name }}"
       lineinfile:
         regexp: "^\\s*port\\s*="
         line: "port = {{ _cluster_port }}"
         dest: "{{ cluster.path }}/postgresql.conf"
-    - name: "postgresql-cluster · unix socket configuration {{ cluster.name }}"
+    - name: "postgresql-cluster - unix socket configuration {{ cluster.name }}"
       lineinfile:
         regexp: "^\\s*{{ _unix_socket_directory | regex_escape }}\\s*="
         line: "{{ _unix_socket_directory }} = '/var/run/postgresql'"
         dest: "{{ cluster.path }}/postgresql.conf"
-    - name: "postgresql-cluster · listen configuration {{ cluster.name }}"
+    - name: "postgresql-cluster - listen configuration {{ cluster.name }}"
       lineinfile:
         regexp: "^\\s*listen_addresses\\s*="
         line: "listen_addresses = '{{ _cluster_listen_addresses }}'"
         dest: "{{ cluster.path }}/postgresql.conf"
         insertbefore: "^#\\s*listen_addresses\\s*="
-    - name: "postgresql-cluster · pg_hba.conf {{ cluster.name }}"
+    - name: "postgresql-cluster - pg_hba.conf {{ cluster.name }}"
       copy:
         src: "{{ cluster.pg_hba | default('pg_hba.conf') }}"
         dest: "{{ cluster.path }}/pg_hba.conf"
@@ -52,7 +52,7 @@
 
   - block:
 
-    - name: "postgresql_cluster · systemctl service's file {{ cluster.name }}"
+    - name: "postgresql_cluster - systemctl service's file {{ cluster.name }}"
       template:
         dest: "/etc/systemd/system/{{ _cluster_service }}.service"
         src: postgresql.service.j2
@@ -63,7 +63,7 @@
       become: yes
       become_user: root
 
-    - name: "postgresql_cluster · systemctl service {{ cluster.name }}"
+    - name: "postgresql_cluster - systemctl service {{ cluster.name }}"
       systemd:
         name: "{{ _cluster_service }}"
         daemon-reload: "{{ service_file.changed }}"
@@ -76,7 +76,7 @@
 
   - block:
 
-    - name: "postgresql_cluster · systemctl service's file {{ cluster.name }}"
+    - name: "postgresql_cluster - systemctl service's file {{ cluster.name }}"
       template:
         dest: "/etc/sysconfig/pgsql/{{ _cluster_service }}"
         src: cluster.j2
@@ -87,13 +87,13 @@
       become: yes
       become_user: root
 
-    - name: "postgresql_cluster · initd script"
+    - name: "postgresql_cluster - initd script"
       file:
         state: link
         src: /etc/init.d/postgresql-{{ cluster.postgresql_version }}
         dest: /etc/init.d/{{ _cluster_service }}
 
-    - name: "postgresql_cluster · enabled service {{ cluster.name }}"
+    - name: "postgresql_cluster - enabled service {{ cluster.name }}"
       service:
         name: "{{ _cluster_service }}"
         state: "{{ 'restarted' if service_file.changed else 'started' }}"

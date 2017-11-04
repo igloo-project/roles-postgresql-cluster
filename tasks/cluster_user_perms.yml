@@ -1,5 +1,5 @@
 ---
-- name: "postgresql_cluster · user {{ _user.username }}"
+- name: "postgresql_cluster - user {{ _user.username }}"
   postgresql_privs:
     role: "{{ _user.username }}"
     port: "{{ _cluster_port }}"
