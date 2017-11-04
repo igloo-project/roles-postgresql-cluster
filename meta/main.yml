@@ -19,5 +19,4 @@ galaxy_info:
     - powo
     - postgresql
     - system
-dependencies:
-  - role: powo.utils
+dependencies: []
