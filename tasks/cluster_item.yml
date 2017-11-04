@@ -42,8 +42,8 @@
         insertbefore: "^#\\s*listen_addresses\\s*="
     - name: "postgresql-cluster · pg_hba.conf {{ cluster.name }}"
       copy:
-        src: pg_hba.conf
-        dest: "{{ cluster.path }}"
+        src: "{{ cluster.pg_hba | default('pg_hba.conf') }}"
+        dest: "{{ cluster.path }}/pg_hba.conf"
         owner: "{{ postgresql_cluster_postgres_user }}"
         group: "{{ postgresql_cluster_postgres_user }}"
         mode: u+r,g+r,o=
