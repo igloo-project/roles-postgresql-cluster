@@ -1,1 +1,23 @@
 ---
+galaxy_info:
+  author: Laurent Almeras
+  description: PostgreSQL/PGDG cluster initialization.
+  license: BSD
+  min_ansible_version: 2.4
+  platforms:
+    - name: EL
+      versions:
+        - 7
+    - name: Fedora
+      versions:
+        - 26
+        # Not yet supported
+        # - name: Ubuntu
+        #     - xenial
+        #     - yakkety
+  galaxy_tags:
+    - powo
+    - postgresql
+    - system
+dependencies:
+  - role: powo.utils
