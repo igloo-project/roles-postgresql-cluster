@@ -12,7 +12,7 @@
           state: directory
           owner: "{{ postgresql_cluster_postgres_user }}"
           group: "{{ postgresql_cluster_postgres_user }}"
-          mode: u=rwx,g=rwx,o=
+          mode: u=rwx,g=,o=
 
       - name: "postgresql-cluster · create {{ cluster.name }}"
         command: "sudo -u postgres {{ _postgresql_initdb | distro(vars) }} --locale={{ _cluster_locale | quote }} --lc-messages=en_US.UTF-8 '{{ cluster.path }}'"
