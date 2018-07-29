@@ -22,3 +22,10 @@ _cluster:
 _cluster_listen_addresses: "{{ cluster.listen_addresses | default(postgresql_cluster_listen_addresses) }}"
 
 postgresql_cluster_listen_addresses: localhost
+
+_psycopg2_packages:
+  RedHat:
+    - python-psycopg2
+  Debian:
+    # python3 needed for firewalld on Debian
+    - python3-psycopg2

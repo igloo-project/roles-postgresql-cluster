@@ -1,6 +1,8 @@
+---
+
 - name: install psycopg2
   package:
-    name: python-psycopg2
+    name: "{{ _psycopg2_packages | distro(vars) }}"
     state: present
   become: yes
   become_user: root
