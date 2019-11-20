@@ -5,6 +5,8 @@
     port: "{{ _cluster_port }}"
     role_attr_flags: "{{ _user.roles | default(postgresql_cluster_default_user_roles) }}"
     password: "{{ _user.password }}"
+    # mandatory from postgresql 10
+    encrypted: true
   become: true
   become_user: root
   vars:
