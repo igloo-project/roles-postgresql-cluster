@@ -29,3 +29,5 @@ _psycopg2_packages:
   Debian:
     # python3 needed for firewalld on Debian
     - python3-psycopg2
+  CentOS_8:
+    - python3-psycopg2
