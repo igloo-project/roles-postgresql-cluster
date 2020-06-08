@@ -19,6 +19,27 @@
       state: present
     with_items: "{{ _database_schemas }}"
 
+  - name:
+    package:
+      name: "{{ _database_postgis_package }}"
+    when: _database_postgis
+
+  - name:
+    postgresql_schema:
+      name: "{{ _database_postgis_schema }}"
+      database: "{{ _database.name }}"
+      owner: "{{ _database_owner }}"
+      port: "{{ _cluster_port }}"
+      state: present
+
+  - name:
+    postgresql_ext:
+      name: postgis
+      db: "{{ _database.name }}"
+      schema: "{{ _database_postgis_schema }}"
+      cascade: true
+    when: _database_postgis
+
   vars:
     _database: "{{ cluster_db_item.database }}"
     _cluster: "{{ cluster_db_item.cluster }}"
@@ -28,4 +49,7 @@
     _database_encoding: "{{ cluster_db_item.database.encoding | default(postgresql_cluster_default_encoding) }}"
     _database_template: "{{ cluster_db_item.database.template | default(postgresql_cluster_default_template) }}"
     _database_schemas: "{{ cluster_db_item.database.schemas | default([]) }}"
+    _database_postgis: "{{ cluster_db_item.database.postgis | default(False) }}"
+    _database_postgis_schema: "{{ cluster_db_item.database.postgis_schema | default('postgis') }}"
+    _database_postgis_package: "{{ cluster_db_item.database.postgis_package | default('postgis30_12') }}"
     _cluster_port: "{{ cluster_db_item.cluster.port | default(postgresql_cluster_default_port) }}"

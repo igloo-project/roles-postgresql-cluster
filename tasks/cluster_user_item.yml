@@ -1,15 +1,39 @@
 ---
 - name: "postgresql_cluster · user {{ _user.username }}"
-  postgresql_user:
-    name: "{{ _user.username }}"
-    port: "{{ _cluster_port }}"
-    role_attr_flags: "{{ _user.roles | default(postgresql_cluster_default_user_roles) }}"
-    password: "{{ _user.password }}"
-    # mandatory from postgresql 10
-    encrypted: true
   become: true
   become_user: root
+  block:
+    - name: "postgresql_cluster · user {{ _user.username }} · creation"
+      postgresql_user:
+        name: "{{ _user.username }}"
+        port: "{{ _cluster_port }}"
+        role_attr_flags: "{{ _user.roles | default(postgresql_cluster_default_user_roles) }}"
+        password: "{{ _user.password }}"
+        # mandatory from postgresql 10
+        encrypted: true
+
+    # check search_path if cluster_user_item.search_path is set
+    - name: "postgresql_cluster · user {{ _user.username }} · check search_path"
+      postgresql_query:
+        query: show search_path
+        db: template1
+        login_user: "{{ _user.username }}"
+        login_password: "{{ _user.password }}"
+        port: "{{ _cluster_port }}"
+      when: _user_search_path | bool
+      register: search_path
+      changed_when: false
+    - name: "postgresql_cluster · user {{ _user.username }} · set search_path"
+      postgresql_query:
+        query: alter role {{ _user.username }} set search_path = {{ _user_search_path }}
+        db: template1
+        login_user: "{{ _user.username }}"
+        login_password: "{{ _user.password }}"
+        port: "{{ _cluster_port }}"
+      when: _user_search_path | bool and search_path.query_result[0]['search_path'] | trim != _user_search_path | trim
+
   vars:
     _cluster: "{{ cluster_user_item.cluster }}"
     _user: "{{ cluster_user_item.user }}"
     _cluster_port: "{{ _cluster.port | default(postgresql_cluster_default_port) }}"
+    _user_search_path: "{{ _user.search_path | default(None) }}"
