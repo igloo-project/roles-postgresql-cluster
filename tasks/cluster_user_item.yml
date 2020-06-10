@@ -20,9 +20,10 @@
         login_user: "{{ _user.username }}"
         login_password: "{{ _user.password }}"
         port: "{{ _cluster_port }}"
-      when: _user_search_path | bool
+      when: _user_search_path | length > 0
       register: search_path
       changed_when: false
+      check_mode: false
     - name: "postgresql_cluster · user {{ _user.username }} · set search_path"
       postgresql_query:
         query: alter role {{ _user.username }} set search_path = {{ _user_search_path }}
@@ -30,10 +31,10 @@
         login_user: "{{ _user.username }}"
         login_password: "{{ _user.password }}"
         port: "{{ _cluster_port }}"
-      when: _user_search_path | bool and search_path.query_result[0]['search_path'] | trim != _user_search_path | trim
+      when: _user_search_path | length > 0 and search_path.query_result[0]['search_path'] | trim != _user_search_path | trim
 
   vars:
     _cluster: "{{ cluster_user_item.cluster }}"
     _user: "{{ cluster_user_item.user }}"
     _cluster_port: "{{ _cluster.port | default(postgresql_cluster_default_port) }}"
-    _user_search_path: "{{ _user.search_path | default(None) }}"
+    _user_search_path: "{{ _user.search_path | default('') }}"
