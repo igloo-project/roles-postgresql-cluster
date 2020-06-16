@@ -36,6 +36,7 @@
     postgresql_ext:
       name: postgis
       db: "{{ _database.name }}"
+      port: "{{ _cluster_port }}"
       schema: "{{ _database_postgis_schema }}"
       cascade: true
     when: _database_postgis
