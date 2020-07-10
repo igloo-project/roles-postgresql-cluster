@@ -25,7 +25,7 @@ postgresql_cluster_listen_addresses: localhost
 
 _psycopg2_packages:
   RedHat:
-    - python-psycopg2
+    - python2-psycopg2
   Debian:
     # python3 needed for firewalld on Debian
     - python3-psycopg2
