@@ -31,6 +31,7 @@
       owner: "{{ _database_owner }}"
       port: "{{ _cluster_port }}"
       state: present
+    when: _database_postgis
 
   - name:
     postgresql_ext:
