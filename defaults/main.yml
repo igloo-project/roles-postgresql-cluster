@@ -31,3 +31,5 @@ _psycopg2_packages:
     - python3-psycopg2
   CentOS_8:
     - python3-psycopg2
+  Fedora:
+    - python3-psycopg2
