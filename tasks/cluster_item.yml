@@ -100,7 +100,7 @@
     - name: "postgresql_cluster · systemctl service's file {{ cluster.name }}"
       copy:
         dest: "/etc/systemd/system/{{ _cluster_service }}.service"
-        src: "/usr/lib/systemd/system/postgresql-12.service"
+        src: "/usr/lib/systemd/system/postgresql-{{ cluster.postgresql_version }}.service"
         remote_src: true
         owner: root
         group: root
