@@ -63,15 +63,63 @@
 
   - block:
 
+    # check if a legacy (.include) conf is present
+    - name: "postgresql_cluster · check legacy"
+      shell: |
+        if [ -f "/etc/systemd/system/{{ _cluster_service }}.service" ]; then
+          grep ".include" "/etc/systemd/system/{{ _cluster_service }}.service" >/dev/null && echo true || echo false
+        else
+          echo false
+        fi
+      register: legacy
+      when: not postgresql_systemd_legacy
+      check_mode: false
+      changed_when: false
+
+    - name: "postgresql_cluster · drop legacy"
+      file:
+        path: "/etc/systemd/system/{{ _cluster_service }}.service"
+        state: absent
+      when: not postgresql_systemd_legacy and 'true' in legacy.stdout
+
+    # legacy: we use .include systemd directive to load defaults
+    # from package provided .service
+    # systemd deprecates and removes .include directive
     - name: "postgresql_cluster · systemctl service's file {{ cluster.name }}"
       template:
         dest: "/etc/systemd/system/{{ _cluster_service }}.service"
-        src: postgresql.service.j2
+        src: postgresql-legacy.service.j2
         owner: root
         group: root
         mode: u=rw,g=r,o=r
       register: service_file
-      when: ansible_os_family == 'RedHat'
+      when: ansible_os_family == 'RedHat' and postgresql_systemd_legacy
+
+    # no legacy: copy file from packaging, change service name and
+    # PG_DATA binding
+    - name: "postgresql_cluster · systemctl service's file {{ cluster.name }}"
+      copy:
+        dest: "/etc/systemd/system/{{ _cluster_service }}.service"
+        src: "/usr/lib/systemd/system/postgresql-12.service"
+        remote_src: true
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+        # do not replace existing file
+        force: false
+      register: service_file
+      when: ansible_os_family == 'RedHat' and not postgresql_systemd_legacy
+
+    # no legacy: replace PG_DATA configuration
+    - name: "postgresql_cluster · systemctl service's file {{ cluster.name }}"
+      lineinfile:
+        path: "/etc/systemd/system/{{ _cluster_service }}.service"
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+        regexp: "Environment=PGDATA=.*"
+        line: "Environment=PGDATA={{ cluster.path }}"
+      when: ansible_os_family == 'RedHat' and not postgresql_systemd_legacy
 
     - name: "postgresql_cluster · systemctl service {{ cluster.name }}"
       systemd:
