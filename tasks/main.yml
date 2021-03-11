@@ -2,7 +2,7 @@
 
 - name: install psycopg2
   package:
-    name: "{{ _psycopg2_packages | distro(vars) }}"
+    name: "{{ psycopg2_packages | default(_psycopg2_packages | distro(vars)) }}"
     state: present
   become: yes
   become_user: root
