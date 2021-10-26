@@ -126,7 +126,20 @@
         name: "{{ _cluster_service }}"
         daemon-reload: "{{ service_file.changed }}"
         state: started
-        enabled: yes
+        enabled: true
+
+    # workaround enabled-runtime problem
+    # https://github.com/ansible/ansible/issues/72451
+    - name: "postgresql_cluster · check systemctl service {{ cluster.name }}"
+      systemd:
+        name: "{{ _cluster_service }}"
+        daemon_reload: "{{ service_file.changed }}"
+      check_mode: true
+      register: postgresql_systemd_wa
+    - name: "postgresql_cluster · systemctl service {{ cluster.name }}"
+      shell:
+        cmd: "systemctl enable {{ _cluster_service }}"
+      when: postgresql_systemd_wa.status.UnitFileState == 'enabled-runtime'
 
     when: _postgresql_systemd
 
