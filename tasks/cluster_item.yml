@@ -28,6 +28,22 @@
         when:
           - ansible_os_family == 'Debian'
           - not cluster_configuration.stat.exists
+  
+  - name: conf.d directory
+    file:
+      path: "{{ _cluster_configuration | dirname }}/conf.d"
+      owner: "{{ postgresql_cluster_postgres_user }}"
+      group: "{{ postgresql_cluster_postgres_user }}"
+      state: directory
+
+  - name: conf.d configs
+    copy:
+      dest: "{{ _cluster_configuration | dirname }}/conf.d/{{ item.name }}"
+      owner: "{{ item.owner | default(postgresql_cluster_postgres_user) }}"
+      group: "{{ item.group | default(postgresql_cluster_postgres_user) }}"
+      mode: "{{ item.mode | default('u=r,go') }}"
+      content: "{{ item.content }}"
+    loop: "{{ _cluster_postgresql_conf_d }}"
 
   - name: disable postgresql service (debian)
     service:
@@ -37,6 +53,11 @@
     when: ansible_os_family == 'Debian'
 
   - block:
+    - name: "postgresql-cluster · include_dir"
+      lineinfile:
+        regexp: "^\\s*include_dir\\s*="
+        line: "include_dir = 'conf.d'"
+        dest: "{{ _cluster_configuration }}"
     - name: "postgresql-cluster · port configuration {{ cluster.name }}"
       lineinfile:
         regexp: "^\\s*port\\s*="
@@ -60,6 +81,15 @@
         owner: "{{ postgresql_cluster_postgres_user }}"
         group: "{{ postgresql_cluster_postgres_user }}"
         mode: u+r,g+r,o=
+      when: _cluster_pg_hba_override == ''
+    - name: "postgresql-cluster · override pg_hba.conf {{ cluster.name }}"
+      copy:
+        content: "{{ _cluster_pg_hba_override }}"
+        dest: "{{ _cluster_configuration | dirname }}/pg_hba.conf"
+        owner: "{{ postgresql_cluster_postgres_user }}"
+        group: "{{ postgresql_cluster_postgres_user }}"
+        mode: u+r,g+r,o=
+      when: _cluster_pg_hba_override != ''
 
   - block:
 
@@ -183,3 +213,5 @@
       RedHat: "{{ cluster.path }}/postgresql.conf"
     _cluster_port: "{{ cluster.port | default(postgresql_cluster_default_port) }}"
     _unix_socket_directory: "{{ 'unix_socket_directory' if cluster.postgresql_version is version('9.3', '<') else 'unix_socket_directories' }}"
+    _cluster_postgresql_conf_d: "{{ cluster.postgresql_conf_d | default([]) }}"
+    _cluster_pg_hba_override: "{{ cluster.pg_hba_override | default('') }}"
