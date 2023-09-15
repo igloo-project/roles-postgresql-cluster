@@ -11,6 +11,8 @@
         password: "{{ _user.password }}"
         # mandatory from postgresql 10
         encrypted: true
+      become: true
+      become_user: postgres
 
     # check search_path if cluster_user_item.search_path is set
     - name: "postgresql_cluster · user {{ _user.username }} · check search_path"

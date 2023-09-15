@@ -9,6 +9,8 @@
       owner: "{{ _database_owner }}"
       port: "{{ _cluster_port }}"
       template: "{{ _database_template }}"
+    become: true
+    become_user: postgres
 
   - name:
     postgresql_schema:
@@ -18,6 +20,8 @@
       port: "{{ _cluster_port }}"
       state: present
     with_items: "{{ _database_schemas }}"
+    become: true
+    become_user: postgres
 
   - name:
     package:
@@ -32,6 +36,8 @@
       port: "{{ _cluster_port }}"
       state: present
     when: _database_postgis
+    become: true
+    become_user: postgres
 
   - name:
     postgresql_ext:
@@ -41,6 +47,8 @@
       schema: "{{ _database_postgis_schema }}"
       cascade: true
     when: _database_postgis
+    become: true
+    become_user: postgres
 
   vars:
     _database: "{{ cluster_db_item.database }}"
