@@ -25,16 +25,22 @@ _cluster_listen_addresses: "{{ cluster.listen_addresses | default(postgresql_clu
 
 postgresql_cluster_listen_addresses: localhost
 
+# acl needed for ansible temp files appropriate permissions
 _psycopg2_packages:
   RedHat:
     # Centos 7: python2-psycopg2 cannot be imported
     - python-psycopg2
+    - acl
   Debian:
     # python3 needed for firewalld on Debian
     - python3-psycopg2
+    - acl
   CentOS_8:
     - python3-psycopg2
+    - acl
   Rocky_8:
     - python3-psycopg2
+    - acl
   Fedora:
     - python3-psycopg2
+    - acl
