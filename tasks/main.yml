@@ -7,6 +7,11 @@
   become: yes
   become_user: root
 
+- include_tasks: cluster_clean_item.yml
+  with_items: "{{ postgresql_clean_cluster_clusters }}"
+  loop_control:
+    loop_var: cluster
+
 - include_tasks: cluster_item.yml
   with_items: "{{ postgresql_cluster_clusters }}"
   loop_control:
