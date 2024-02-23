@@ -1,0 +1,23 @@
+- block:
+  - name: "drop postgresql_cluster · drop  {{ _cluster_service }} service"
+    file:
+      path: "/etc/systemd/system/{{ _cluster_service }}.service"
+      state: absent
+
+  - name: "drop postgresql-cluster · drop directory {{ _cluster_service }} "
+    file:
+      path: "{{ _cluster_path_distro }}"
+      state: absent
+
+  become: yes
+  become_user: root
+  vars:
+    # debian use instance template postgresql@<version>-<cluster>, RedHat a custom file postgresql-<version>-<cluster>
+    _cluster_service: "{{ _cluster_service_distro | distro(vars) }}"
+    _cluster_service_distro:
+      Debian: "postgresql@{{ cluster.postgresql_version }}-{{ cluster.name }}"
+      RedHat: "postgresql-{{ cluster.postgresql_version }}-{{ cluster.name }}"
+    # debian use path /etc/postgresql/, RedHat a custom path <cluster.path>
+    _cluster_path_distro:
+      Debian: "/etc/postgresql/{{ cluster.postgresql_version }"
+      RedHat: "{{ cluster.path }}"
