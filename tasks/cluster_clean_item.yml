@@ -1,12 +1,22 @@
 - block:
+
+  - name: stop and disable
+    become: true
+    become_user: root
+    ignore_errors: true
+    service:
+      name: "{{ _cluster_service }}"
+      state: stopped
+      enabled: false
+  
   - name: "drop postgresql_cluster · drop  {{ _cluster_service }} service"
     file:
       path: "/etc/systemd/system/{{ _cluster_service }}.service"
       state: absent
 
-  - name: "drop postgresql-cluster · drop directory {{ _cluster_service }} "
+  - name: "drop postgresql-cluster · drop directory {{ _cluster_path }}"
     file:
-      path: "{{ _cluster_path_distro }}"
+      path: "{{ _cluster_path }}"
       state: absent
 
   become: yes
@@ -18,6 +28,7 @@
       Debian: "postgresql@{{ cluster.postgresql_version }}-{{ cluster.name }}"
       RedHat: "postgresql-{{ cluster.postgresql_version }}-{{ cluster.name }}"
     # debian use path /etc/postgresql/, RedHat a custom path <cluster.path>
+    _cluster_path: "{{ _cluster_path_distro | distro(vars) }}"
     _cluster_path_distro:
-      Debian: "/etc/postgresql/{{ cluster.postgresql_version }"
+      Debian: "/etc/postgresql/{{ cluster.postgresql_version }}"
       RedHat: "{{ cluster.path }}"
