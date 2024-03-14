@@ -6,6 +6,8 @@ postgresql_cluster_default_template: template0
 postgresql_cluster_default_user_roles: LOGIN
 postgresql_cluster_default_user_database_privileges: CONNECT,CREATE
 
+postgresql_clean_cluster_clusters: []
+
 postgresql_systemd_legacy: true
 
 _postgresql_systemd: "{{ postgresql_systemd | default(True) }}"
