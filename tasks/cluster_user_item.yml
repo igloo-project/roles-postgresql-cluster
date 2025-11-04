@@ -18,7 +18,7 @@
     - name: "postgresql_cluster · user {{ _user.username }} · check search_path"
       postgresql_query:
         query: show search_path
-        db: template1
+        login_db: template1
         login_user: "{{ _user.username }}"
         login_password: "{{ _user.password }}"
         port: "{{ _cluster_port }}"
@@ -29,7 +29,7 @@
     - name: "postgresql_cluster · user {{ _user.username }} · set search_path"
       postgresql_query:
         query: alter role {{ _user.username }} set search_path = {{ _user_search_path }}
-        db: template1
+        login_db: template1
         login_user: "{{ _user.username }}"
         login_password: "{{ _user.password }}"
         port: "{{ _cluster_port }}"

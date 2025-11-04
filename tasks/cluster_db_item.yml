@@ -12,10 +12,10 @@
     become: true
     become_user: postgres
 
-  - name:
+  - name: "postgresql_cluster · database {{ _database.name }} / schemas"
     postgresql_schema:
       name: "{{ item }}"
-      database: "{{ _database.name }}"
+      login_db: "{{ _database.name }}"
       owner: "{{ _database_owner }}"
       port: "{{ _cluster_port }}"
       state: present
@@ -23,15 +23,15 @@
     become: true
     become_user: postgres
 
-  - name:
+  - name: "postgresql_cluster · database {{ _database.name }} / postgis"
     package:
       name: "{{ _database_postgis_package }}"
     when: _database_postgis
 
-  - name:
+  - name: "postgresql_cluster · database {{ _database.name }} / postgis schema"
     postgresql_schema:
       name: "{{ _database_postgis_schema }}"
-      database: "{{ _database.name }}"
+      login_db: "{{ _database.name }}"
       owner: "{{ _database_owner }}"
       port: "{{ _cluster_port }}"
       state: present
@@ -39,10 +39,10 @@
     become: true
     become_user: postgres
 
-  - name:
+  - name: "postgresql_cluster · database {{ _database.name }} / postgis extension"
     postgresql_ext:
       name: postgis
-      db: "{{ _database.name }}"
+      login_db: "{{ _database.name }}"
       port: "{{ _cluster_port }}"
       schema: "{{ _database_postgis_schema }}"
       cascade: true

@@ -3,7 +3,7 @@
   postgresql_privs:
     role: "{{ _user.username }}"
     port: "{{ _cluster_port }}"
-    database: "{{ database.name | default(database) }}"
+    login_db: "{{ database.name | default(database) }}"
     type: database
     privs: "{{ database.privileges | default(postgresql_cluster_default_user_privileges) }}"
   with_items: "{{ _user.databases | default([]) }}"
