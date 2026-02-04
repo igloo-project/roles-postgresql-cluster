@@ -7,7 +7,7 @@
       lc_ctype: "{{ _database_locale }}"
       name: "{{ _database.name }}"
       owner: "{{ _database_owner }}"
-      port: "{{ _cluster_port }}"
+      login_port: "{{ _cluster_port }}"
       template: "{{ _database_template }}"
     become: true
     become_user: postgres
@@ -17,7 +17,7 @@
       name: "{{ item }}"
       login_db: "{{ _database.name }}"
       owner: "{{ _database_owner }}"
-      port: "{{ _cluster_port }}"
+      login_port: "{{ _cluster_port }}"
       state: present
     with_items: "{{ _database_schemas }}"
     become: true
@@ -33,7 +33,7 @@
       name: "{{ _database_postgis_schema }}"
       login_db: "{{ _database.name }}"
       owner: "{{ _database_owner }}"
-      port: "{{ _cluster_port }}"
+      login_port: "{{ _cluster_port }}"
       state: present
     when: _database_postgis
     become: true
@@ -43,7 +43,7 @@
     postgresql_ext:
       name: postgis
       login_db: "{{ _database.name }}"
-      port: "{{ _cluster_port }}"
+      login_port: "{{ _cluster_port }}"
       schema: "{{ _database_postgis_schema }}"
       cascade: true
     when: _database_postgis

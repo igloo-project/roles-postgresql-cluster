@@ -2,7 +2,7 @@
 - name: "postgresql_cluster · user {{ _user.username }}"
   postgresql_privs:
     role: "{{ _user.username }}"
-    port: "{{ _cluster_port }}"
+    login_port: "{{ _cluster_port }}"
     login_db: "{{ database.name | default(database) }}"
     type: database
     privs: "{{ database.privileges | default(postgresql_cluster_default_user_privileges) }}"

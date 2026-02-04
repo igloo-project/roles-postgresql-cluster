@@ -15,9 +15,9 @@
           mode: u=rwx,g=,o=
 
       - name: "postgresql-cluster · create {{ cluster.name }}"
-        command: "sudo -u postgres {{ _postgresql_initdb | distro(vars) }} --locale={{ _cluster_locale | quote }} --lc-messages=en_US.UTF-8 '{{ cluster.path }}'"
+        command: "sudo -u postgres {{ lookup('distro', _postgresql_initdb) }} --locale={{ _cluster_locale | quote }} --lc-messages=en_US.UTF-8 '{{ cluster.path }}'"
         when:
-          - ansible_os_family == 'RedHat'
+          - ansible_facts['os_family'] == 'RedHat'
           - not cluster_configuration.stat.exists
 
       - name: "postgresql-cluster · create {{ cluster.name }}"
@@ -26,7 +26,7 @@
           --locale={{ _cluster_locale | quote }} --lc-messages=en_US.UTF-8 -d {{ cluster.path | quote }}
           {{ cluster.postgresql_version | quote }} {{ cluster.name | quote }}
         when:
-          - ansible_os_family == 'Debian'
+          - ansible_facts['os_family'] == 'Debian'
           - not cluster_configuration.stat.exists
   
   - name: conf.d directory
@@ -50,7 +50,7 @@
       name: postgresql
       state: stopped
       enabled: false
-    when: ansible_os_family == 'Debian'
+    when: ansible_facts['os_family'] == 'Debian'
 
   - block:
     - name: "postgresql-cluster · include_dir"
@@ -123,7 +123,7 @@
         group: root
         mode: u=rw,g=r,o=r
       register: service_file
-      when: ansible_os_family == 'RedHat' and postgresql_systemd_legacy
+      when: ansible_facts['os_family'] == 'RedHat' and postgresql_systemd_legacy
 
     # no legacy: copy file from packaging, change service name and
     # PG_DATA binding
@@ -138,7 +138,7 @@
         # do not replace existing file
         force: false
       register: service_file
-      when: ansible_os_family == 'RedHat' and not postgresql_systemd_legacy
+      when: ansible_facts['os_family'] == 'RedHat' and not postgresql_systemd_legacy
 
     # no legacy: replace PG_DATA configuration
     - name: "postgresql_cluster · systemctl service's file {{ cluster.name }}"
@@ -149,7 +149,7 @@
         mode: u=rw,g=r,o=r
         regexp: "Environment=PGDATA=.*"
         line: "Environment=PGDATA={{ cluster.path }}"
-      when: ansible_os_family == 'RedHat' and not postgresql_systemd_legacy
+      when: ansible_facts['os_family'] == 'RedHat' and not postgresql_systemd_legacy
 
     - name: "postgresql_cluster · systemctl service {{ cluster.name }}"
       systemd:
@@ -198,16 +198,16 @@
 
     when: _postgresql_initd
 
-  become: yes
+  become: true
   become_user: root
   vars:
     _cluster_locale: "{{ cluster.locale | default(postgresql_cluster_default_locale) }}"
     # debian use instance template postgresql@<version>-<cluster>, RedHat a custom file postgresql-<version>-<cluster>
-    _cluster_service: "{{ _cluster_service_distro | distro(vars) }}"
+    _cluster_service: "{{ lookup('distro', _cluster_service_distro) }}"
     _cluster_service_distro:
       Debian: "postgresql@{{ cluster.postgresql_version }}-{{ cluster.name }}"
       RedHat: "postgresql-{{ cluster.postgresql_version }}-{{ cluster.name }}"
-    _cluster_configuration: "{{ _cluster_configuration_distro | distro(vars) }}"
+    _cluster_configuration: "{{ lookup('distro', _cluster_configuration_distro) }}"
     _cluster_configuration_distro:
       Debian: "/etc/postgresql/{{ cluster.postgresql_version }}/{{ cluster.name }}/postgresql.conf"
       RedHat: "{{ cluster.path }}/postgresql.conf"

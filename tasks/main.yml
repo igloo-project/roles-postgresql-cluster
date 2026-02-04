@@ -2,9 +2,9 @@
 
 - name: install psycopg2
   package:
-    name: "{{ psycopg2_packages | default(_psycopg2_packages | distro(vars)) }}"
+    name: "{{ psycopg2_packages | default(lookup('distro', _psycopg2_packages)) }}"
     state: present
-  become: yes
+  become: true
   become_user: root
 
 - include_tasks: cluster_clean_item.yml
