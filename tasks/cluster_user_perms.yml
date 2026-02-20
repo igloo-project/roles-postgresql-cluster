@@ -9,6 +9,7 @@
   with_items: "{{ _user.databases | default([]) }}"
   loop_control:
     loop_var: database
+    label: database.name | default(database)
   become: true
   become_user: postgres
   vars:
