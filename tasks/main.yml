@@ -16,6 +16,7 @@
   with_items: "{{ postgresql_cluster_clusters }}"
   loop_control:
     loop_var: cluster
+    label: "{{ cluster.name }}"
 
 - include_tasks: cluster_user_item.yml
   with_items: "{{ postgresql_cluster_clusters | cluster_user_items }}"
