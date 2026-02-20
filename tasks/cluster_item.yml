@@ -44,6 +44,8 @@
       mode: "{{ item.mode | default('u=r,go') }}"
       content: "{{ item.content }}"
     loop: "{{ _cluster_postgresql_conf_d }}"
+    loop_control:
+      label: "{{ item.name }}"
 
   - name: disable postgresql service (debian)
     service:
